@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+} from '../redux/user/userSlice';
 
 export default function Login() {
   const [dataForm, setDataForm] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
+
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setDataForm({
@@ -18,7 +25,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      dispatch(loginStart());
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -29,18 +36,15 @@ export default function Login() {
       const data = await res.json();
       console.log(data);
       if (data.success === false) {
-        setLoading(false);
-        setError(data.message);
+        dispatch(loginFailure(data.message));
         return;
       }
-      setLoading(false);
-      setError(null);
+      dispatch(loginSuccess(data));
 
       // if login succesful and navigate to home page
       navigate('/');
     } catch (error) {
-      setLoading(false);
-      setError(error.message);
+      dispatch(loginFailure(error.message));
     }
   };
 
