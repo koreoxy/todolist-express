@@ -1,7 +1,8 @@
 import User from '../models/UserModel.js';
 import bcryptjs from 'bcryptjs';
+import { errorHandler } from '../routes/error.js';
 
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
   const { username, email, password } = req.body;
 
   //HASH PASSWORD
@@ -15,6 +16,7 @@ export const register = async (req, res) => {
     await newUser.save();
     res.status(201).json('User created succesfully');
   } catch (error) {
-    res.status(500).json(error.message);
+    // next(errorHandler(550, 'error from the function'));
+    next(error);
   }
 };
